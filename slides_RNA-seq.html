@@ -5,9 +5,9 @@
     <meta charset="utf-8" />
     <meta name="author" content="Mónica Padilla, Dra. Alejandra Medina" />
     <meta name="date" content="2022-03-01" />
-    <script src="slides_RNA-seq_files/header-attrs-2.11/header-attrs.js"></script>
+    <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
-    <link rel="stylesheet" href="extra.css" type="text/css" />
+    <link rel="stylesheet" href="slides_RNA-seq_files/extra.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -60,11 +60,22 @@ class: center, middle, inverse, title-slide
 
 ```r
 library(wordcloud)
+```
+
+```
+## Loading required package: RColorBrewer
+```
+
+```r
 library(RColorBrewer)
 
-words &lt;- c('Circadian','regulation','of','SARS-CoV-2','infection','in','lung','epithelial','cells','RNA-seq','studies','RNA-seq','Analysis','of','control','and','CyPA-stimulated','BEAs-2B','cells','Transcriptomes','Immune','signatures','underlying','post-acute','COVID-19','lung','sequelae','Molecular','Profiling','of','COVID-19','Autopsies','Uncovers','Novel','Disease','Mechanisms','[RNA-Seq]','Short','duplex','RNAs','induce','potent','immunostimulation','via','','Hoogsteen','G-G','base','pairing-mediated','dimerization','Mapping','the','3D','genome','and','epigenome','in','SARS-CoV-2','infected','human','cells','A','high-resolution','temporal','atlas','of','the','SARS-CoV-2','translatome','and','transcriptome','Severe','COVID-19','is','Characterized','by','an','Impaired','Type','I','Interferon','Response','and','Elevated','Levels','of','Arginase','Producing','Granulocytic','Myeloid','Derived','Suppressor','Cells','Experimental','and','natural','evidence','of','SARS-CoV-2','infection-induced','activation','of','type','I','interferon','responses','A','single-cell','and','spatial','atlas','of','autopsy','tissues','reveals','pathology','and','cellular','targets','of','SARS-CoV-2','[gene','expression','levels]','A','single-cell','and','spatial','atlas','of','autopsy','tissues','reveals','pathology','and','cellular','targets','of','SARS-CoV-2','[protein','levels]','A','single-cell','and','spatial','atlas','of','autopsy','tissues','reveals','pathology','and','cellular','targets','of','SARS-CoV-2','[gene','expression','levels]','COVID-19','tissue','atlases','reveal','SARS-COV-2','pathology','and','cellular','targets','Single-Cell','Omics','Reveals','Dyssynchrony','of','the','Innate','and','Adaptive','Immune','System','in','Progressive','COVID-19','[single-cell','RNA-seq]','Host-virus','chimeric','events','in','SARS-CoV2','infected','cells','are','infrequent','and','artifactual','Transcriptome','analysis','of','SARS-CoV-2','infected','H522','human','lung','adenocarcinoma','cells','Single-cell','RNA-seq','of','air-liquid','interface','bronchioalveolar','cells','Deciphering','the','state','of','immune','silence','in','fatal','COVID-19','patients','Androgen','Regulates','SARS-CoV-2','Receptor','Levels','and','Is','Associated','with','Severe','COVID-19','Symptoms','in','Men','[bulk','RNA-Seq]','Single','Nucleus','RNA-Seq','Multiomic','Profiling','Reveals','Age-Dynamic','Regulation','of','Host','Genes','Associated','with','SARS-CoV-2','Infection','[scRNA-Seq]','SARS-CoV-2','infection','of','primary','human','lung','epithelium','for','COVID-19','modeling','and','drug','discovery','Macrophage','expression','and','prognostic','significance','of','the','long','pentraxin','PTX3','in','COVID-19','Lung','transplantation','for','patients','with','severe','COVID-19','Transcriptomic','analysis','of','human','alveolar','type','II','cell','organoids','post','infection','of','SARS-CoV-2')
+words &lt;- c("Librería,","Secuenciación,","Transcripción,","samtools,","RNA,","","Regulación,","Nucleótido,","Traducción","RNA,","secuenciación,","proteínas,","regulación,","expresión","génica","Secuenciación,","expresión","diferencial,","transcriptoma,","fenotipos","exones","Transcriptoma,","expresión","diferencial,","RNA,","diferencia","celular","Transcripción,","regulación,","expresión,","muestra","Expresion,","exones,","transcriptoma,","UTR,","hisat2,","splicing,","Transcritoma,","splicing,","cDNA")
 
 wordcloud(words, colors = RColorBrewer::brewer.pal(5,name = "BuPu"))
+```
+
+```
+## Loading required namespace: tm
 ```
 
 ![](slides_RNA-seq_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
@@ -79,7 +90,9 @@ Estudio del **transcriptoma** - el set completo de transcritos de RNA producidos
 
 - Identidad y abundancia
 
-![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/transcriptomica.png)
+.container[
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/transcriptomica.png) [4]
+]
 
 ???
 
@@ -94,6 +107,8 @@ o de alto rendimiento
 
 ![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/book.png)
 
+[4]
+
 ???
 
 Herramienta que hace uso de las tecnologías de secuenciación NGS para generar perfiles transcriptómicos.
@@ -102,7 +117,7 @@ Herramienta que hace uso de las tecnologías de secuenciación NGS para generar 
 
 # Aplicaciones
 
-![](img/RNA-seq_applications.png)
+![](img/RNA-seq_applications.png) [5]
 
 ???
 
@@ -139,7 +154,7 @@ Responder preguntas biológicas
 
 ### Diseño Experimental y Diseño de Secuenciación
 
-![](img/rna-seq_protocol.png)
+![](img/rna-seq_protocol.png) [1]
 
 ---
 
@@ -194,7 +209,7 @@ Responder preguntas biológicas
 
 .pull-right[    
 .fit[
-![](img/reads_SE_PE_long.png)
+![](img/reads_SE_PE_long.png) [2]
 ]]
 
 ---
@@ -234,7 +249,9 @@ Depende de la variabilidad técnica y la variabilidad biológica del objeto de e
     - Depende del método]
 
 .pull-right[.fit[
-![](img/nreplicates_statistical_power.png)]]
+![](img/nreplicates_statistical_power.png)
+[1]
+]]
 
 ---
 
@@ -263,9 +280,13 @@ Depende de la variabilidad técnica y la variabilidad biológica del objeto de e
 
 # Pipeline bioinformática
 
+.pull-left[
 .container[
 ![](https://biocorecrg.github.io/RNAseq_course_2019/images/RNAseq_workflow.png)]
+]
 
+.pull-right[
+[4]]
 ---
 
 # Quality Check
@@ -305,7 +326,15 @@ Funciones:
 
 # References
 
-- Conesa, A., Madrigal, P., Tarazona, S., Gomez-Cabrero, D., Cervera, A., McPherson, A., Szcześniak, M. W., Gaffney, D. J., Elo, L. L., Zhang, X., Mortazavi, A., Berulava, T., Buchholz, E., Elerdashvili, V., Pena, T., Islam, M. R., Lbik, D., Mohamed, B. A., Renner, A., … Mou, S. (2017). RNA-seq methods. Journal of Cellular Biochemistry, 8(1), 1–24. https://doi.org/10.1002/wrna.1364.RNA-Seq
+- [1] Conesa, A., Madrigal, P., Tarazona, S., … Mou, S. (2017). RNA-seq methods. Journal of Cellular Biochemistry, 8(1), 1–24. https://doi.org/10.1002/wrna.1364.RNA-Seq
+
+- [2] Hrdlickova, R., Toloue, M., &amp; Tian, B. (2017). RNA‐Seq methods for transcriptome analysis. Wiley Interdisciplinary Reviews: RNA, 8(1), e1364.
+
+- [3] Stark, R., Grzelak, M., &amp; Hadfield, J. (2019). RNA sequencing: the teenage years. Nature Reviews Genetics, 20(11), 631-656.
+
+- [4] Villaseñor-Altamirano, A. B. &amp; Chávez-Domínguez, R. L. "Mini curso abril 2021: Panorama general de análisis de datos de RNA-seq con R". Red Mexicana de Bioinformática (2021). https://comunidadbioinfo.github.io/minicurso_abr_2021/
+
+- [5] Created with BioRender.com
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
@@ -382,7 +411,7 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
 })();</script>
 <style>
   .logo {
-    background-image: url(../img/rna-icon.png);
+    background-image: url(img/rna-icon.png);
     background-size: contain;
     background-repeat: no-repeat;
     position: absolute;
