@@ -1,0 +1,25 @@
+Circadian regulation of SARS-CoV-2 infection in lung epithelial cells
+RNA-seq studies
+RNA-seq Analysis of control and CyPA-stimulated BEAs-2B cells Transcriptomes
+Immune signatures underlying post-acute COVID-19 lung sequelae
+Molecular Profiling of COVID-19 Autopsies Uncovers Novel Disease Mechanisms [RNA-Seq]
+Short duplex RNAs induce potent immunostimulation via  Hoogsteen G-G base pairing-mediated dimerization
+Mapping the 3D genome and epigenome in SARS-CoV-2 infected human cells
+A high-resolution temporal atlas of the SARS-CoV-2 translatome and transcriptome
+Severe COVID-19 is Characterized by an Impaired Type I Interferon Response and Elevated Levels of Arginase Producing Granulocytic Myeloid Derived Suppressor Cells
+Experimental and natural evidence of SARS-CoV-2 infection-induced activation of type I interferon responses
+A single-cell and spatial atlas of autopsy tissues reveals pathology and cellular targets of SARS-CoV-2 [gene expression levels]
+A single-cell and spatial atlas of autopsy tissues reveals pathology and cellular targets of SARS-CoV-2 [protein levels]
+A single-cell and spatial atlas of autopsy tissues reveals pathology and cellular targets of SARS-CoV-2 [gene expression levels]
+COVID-19 tissue atlases reveal SARS-COV-2 pathology and cellular targets
+Single-Cell Omics Reveals Dyssynchrony of the Innate and Adaptive Immune System in Progressive COVID-19 [single-cell RNA-seq]
+Host-virus chimeric events in SARS-CoV2 infected cells are infrequent and artifactual
+Transcriptome analysis of SARS-CoV-2 infected H522 human lung adenocarcinoma cells
+Single-cell RNA-seq of air-liquid interface bronchioalveolar cells
+Deciphering the state of immune silence in fatal COVID-19 patients
+Androgen Regulates SARS-CoV-2 Receptor Levels and Is Associated with Severe COVID-19 Symptoms in Men [bulk RNA-Seq]
+Single Nucleus RNA-Seq Multiomic Profiling Reveals Age-Dynamic Regulation of Host Genes Associated with SARS-CoV-2 Infection [scRNA-Seq]
+SARS-CoV-2 infection of primary human lung epithelium for COVID-19 modeling and drug discovery
+Macrophage expression and prognostic significance of the long pentraxin PTX3 in COVID-19
+Lung transplantation for patients with severe COVID-19
+Transcriptomic analysis of human alveolar type II cell organoids post infection of SARS-CoV-2

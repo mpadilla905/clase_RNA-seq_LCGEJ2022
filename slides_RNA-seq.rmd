@@ -1,0 +1,310 @@
+---
+title: "RNA-seq"
+subtitle: "Bioformática - LCG-EJ"
+author: "Mónica Padilla, Dra. Alejandra Medina"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: [xaringan-themer.css, "extra.css"]
+    includes:
+     after_body: insert-logo.html # rna-logo
+    nature:
+      navigation:
+        scroll: false # disable transitions by scrolling
+---
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+#install.packages("xaringanthemer")
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#43418A",
+  header_font_google = google_font("Fredoka","300"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+#style_extra_css(css = extra_css, outfile = "extra.css")
+```
+
+# Día 1
+
+**Agenda:**
+
+- Presentaciones y Lluvia de Ideas
+
+- Overview RNA-seq
+- Aspectos generales del Pre-Análisis
+  - Diseño Experimental
+  - Diseño de secuenciación
+  
+- Pipeline bioinformática
+  - Quality Check
+  - Trimming
+
+- Ejercicio QC
+
+---
+
+# RNA-seq, ¿qué pensamos?
+
+.scrollable[
+
+**Actividad:** Lluvia de ideas
+
+<img style="border-radius: 90%; width: 150px; top: 1em; right: 1em; position:absolute;" src = "https://media.istockphoto.com/vectors/young-annoyed-female-character-sceptical-face-expression-vector-id1252249414?k=20&m=1252249414&s=612x612&w=0&h=l84MEu6X2KbrRnFbLS2KJ_dswLj0SPIp7pp__cXlRGM=">
+
+- Llenen en la siguiente tabla palabras clave sobre RNA-seq: https://docs.google.com/document/d/1pAFddzDlLrRvHMSUjddh7EG3PdTbob3g9UQWzMHXR-w/edit?usp=sharing
+
+- Generemos una [figura de nuestras ideas](https://www.r-graph-gallery.com/wordcloud.html):
+
+```{bash, echo=FALSE, eval=FALSE}
+cat palabras | perl -pe 's/\s/","/g'
+```
+
+
+```{r, warning=FALSE, echo=TRUE}
+library(wordcloud)
+library(RColorBrewer)
+
+words <- c('Circadian','regulation','of','SARS-CoV-2','infection','in','lung','epithelial','cells','RNA-seq','studies','RNA-seq','Analysis','of','control','and','CyPA-stimulated','BEAs-2B','cells','Transcriptomes','Immune','signatures','underlying','post-acute','COVID-19','lung','sequelae','Molecular','Profiling','of','COVID-19','Autopsies','Uncovers','Novel','Disease','Mechanisms','[RNA-Seq]','Short','duplex','RNAs','induce','potent','immunostimulation','via','','Hoogsteen','G-G','base','pairing-mediated','dimerization','Mapping','the','3D','genome','and','epigenome','in','SARS-CoV-2','infected','human','cells','A','high-resolution','temporal','atlas','of','the','SARS-CoV-2','translatome','and','transcriptome','Severe','COVID-19','is','Characterized','by','an','Impaired','Type','I','Interferon','Response','and','Elevated','Levels','of','Arginase','Producing','Granulocytic','Myeloid','Derived','Suppressor','Cells','Experimental','and','natural','evidence','of','SARS-CoV-2','infection-induced','activation','of','type','I','interferon','responses','A','single-cell','and','spatial','atlas','of','autopsy','tissues','reveals','pathology','and','cellular','targets','of','SARS-CoV-2','[gene','expression','levels]','A','single-cell','and','spatial','atlas','of','autopsy','tissues','reveals','pathology','and','cellular','targets','of','SARS-CoV-2','[protein','levels]','A','single-cell','and','spatial','atlas','of','autopsy','tissues','reveals','pathology','and','cellular','targets','of','SARS-CoV-2','[gene','expression','levels]','COVID-19','tissue','atlases','reveal','SARS-COV-2','pathology','and','cellular','targets','Single-Cell','Omics','Reveals','Dyssynchrony','of','the','Innate','and','Adaptive','Immune','System','in','Progressive','COVID-19','[single-cell','RNA-seq]','Host-virus','chimeric','events','in','SARS-CoV2','infected','cells','are','infrequent','and','artifactual','Transcriptome','analysis','of','SARS-CoV-2','infected','H522','human','lung','adenocarcinoma','cells','Single-cell','RNA-seq','of','air-liquid','interface','bronchioalveolar','cells','Deciphering','the','state','of','immune','silence','in','fatal','COVID-19','patients','Androgen','Regulates','SARS-CoV-2','Receptor','Levels','and','Is','Associated','with','Severe','COVID-19','Symptoms','in','Men','[bulk','RNA-Seq]','Single','Nucleus','RNA-Seq','Multiomic','Profiling','Reveals','Age-Dynamic','Regulation','of','Host','Genes','Associated','with','SARS-CoV-2','Infection','[scRNA-Seq]','SARS-CoV-2','infection','of','primary','human','lung','epithelium','for','COVID-19','modeling','and','drug','discovery','Macrophage','expression','and','prognostic','significance','of','the','long','pentraxin','PTX3','in','COVID-19','Lung','transplantation','for','patients','with','severe','COVID-19','Transcriptomic','analysis','of','human','alveolar','type','II','cell','organoids','post','infection','of','SARS-CoV-2')
+
+wordcloud(words, colors = RColorBrewer::brewer.pal(5,name = "BuPu"))
+```
+
+]
+
+---
+
+# Transcriptómica
+
+Estudio del **transcriptoma** - el set completo de transcritos de RNA producidos por el genoma bajo **condiciones específicas** o en una **célula específica** - usando métodos _high-throughput_.
+
+- Identidad y abundancia
+
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/transcriptomica.png)
+
+???
+
+o de alto rendimiento
+
+- **¿Por qué la obsesión en el RNA?** Es un intermediario escencial entre el genoma y el proteoma. Entre lo pre-programado y la interacción con el ambiente. 
+
+---
+
+# ¿Qué es el RNA- seq?
+
+
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/book.png)
+
+???
+
+Herramienta que hace uso de las tecnologías de secuenciación NGS para generar perfiles transcriptómicos.
+
+---
+
+# Aplicaciones
+
+![](img/RNA-seq_applications.png)
+
+???
+
+Responder preguntas biológicas
+
+---
+
+# Bases de Datos
+
+**Datos de publicación**
+
+- NCBI
+  - [Gene Expression Omnibus (GEO)](https://www.ncbi.nlm.nih.gov/geo/browse/)
+  - Sequence Read Archive (SRA)
+  
+- EMBL-EBI
+  - [ArrayExpress](https://www.ebi.ac.uk/arrayexpress/about.html)
+  
+**Consorcios **
+  
+- [Genotype Tissue-Expression (GTEx)](https://gtexportal.org/home/tissueSummaryPage)
+
+- [The Cancer Genome Atlas (TCGA)](https://portal.gdc.cancer.gov/)
+
+**Integración de datos para análisis**
+
+- [recount3](https://rna.recount.bio/)
+
+- [pulmonDB](https://pulmondb.liigh.unam.mx/)
+
+---
+
+# Aspectos generales del Pre Análisis
+
+### Diseño Experimental y Diseño de Secuenciación
+
+![](img/rna-seq_protocol.png)
+
+---
+
+## Protocolo de extracción de RNA
+
+**Propósito:** 
+  
+  Deshacerse del RNA ribosomal (90%) y quedarse con el mRNA (~1-2%)
+
+.pull-left[
+    
+ - Eukaryotes
+    - Enriquecer mRNAs usando selección de poly(A)
+        - Degradación mínima del RNA, medido por _RNA Integrity Number (RIN)_
+
+- Prokaryotes o _bad RIN_
+    - Deshacerse del rRNA]
+    
+.pull-right[
+
+![](https://sbi4u2013.files.wordpress.com/2013/02/cap-poly-a-tail.png)
+]
+    
+---
+
+### RNA world
+
+- **lncRNA & mRNA**: polyA selection
+
+- **miRNA** : binding of 3'UTR target genes
+
+- **sncRNA (miRNAs, piRNAs, and endosiRNAs)** : captured by direct ligation with adapters
+
+- **circular RNA**: uso de exonuclease R para digerir RNA lineal
+
+---
+
+## Library Type
+
+**La mejor opción:** depende del propósito del análisis
+
+.pull-left[
+- Single-end (SE)
+    - Organismo bien documentado
+    - Bajo costo
+    
+- Paired-end (PE) reads
+    - Descubrimiento de transcritos _de novo_ 
+    - Análisis de expresión de isoformas
+    - Organismo no anotado
+]
+
+.pull-right[    
+.fit[
+![](img/reads_SE_PE_long.png)
+]]
+
+---
+
+## Sequencing Depth ó Library Size
+
+`Número de secuenciación de lecturas para una muestra dada.`
+
+
+**Mejor opción:** depende
+
+- 5 millones de lecturas --> Cuantificación adecuada de genes altamente expresados 
+
+- 100 millones de lecturas --> genes con niveles de expresión bajos
+
+En general: 
+`+ sequencing depth = + transcritos + precisión`
+  
+- Detección de ruido transcripcional
+
+???
+
+curvas de saturacion 
+
+---
+
+## Número de replicas
+
+Depende de la variabilidad técnica y la variabilidad biológica del objeto de estudio, así como del poder estadístico deseado.
+
+.pull-left[
+- Variabilidad en mediciones
+    - extracción o _library prep_
+- Variabilidad biológica
+    - Inferencias poblacionales: minimo 3
+- Poder estadístico
+    - Depende del método]
+
+.pull-right[.fit[
+![](img/nreplicates_statistical_power.png)]]
+
+---
+
+# Diseño de Secuenciación
+
+**Propósito:** Evitar introducir sesgos técnicos o factores de confusión en nuestras muestras.
+
+
+> Nuestro experimento de RNA-seq es grande y las muestras deben de ser procesadas en multiples _batches_ o rondas de secuenciación de Illumina
+
+**Aleatorización de muestras**
+
+- Durante preparación de librería
+- Rondas de secuenciación
+
+> Muestras individualmente _barcoded_ y se requiren multiples _lanes_ de Illumina para _sequencing depth_ de nuestra elección
+
+- Incluir todas las muestras en cada línea para minimizar el _lane effect_
+
+???
+
+- _spike-ins_ o transcritos exógenos de referencia
+    - QC y normalización
+
+---
+
+# Pipeline bioinformática
+
+.container[
+![](https://biocorecrg.github.io/RNAseq_course_2019/images/RNAseq_workflow.png)]
+
+---
+
+# Quality Check
+
+Some tools:
+
+- `FASTQC` Illumina reads
+- `NGSQC` any platform
+- `multiqc` : genera reportes gráficos con múltiples muestras
+
+Revisar:
+
+- Read quality decreases towards the 3' end of reads
+- Niveles de k-meros, lecturas duplicadas, contenido de GC son experimento y organismo específicos pero deben ser homogeneos
+
+---
+
+# Trimming
+
+Some tools: `FASTX-Toolkit`, `Trimmomatic`, `cutadapat`
+
+Funciones:
+
+- Quitar lecturas con mala calidad
+- Quitar bases con baja calidad
+- Cortar secuencias de adaptadores
+
+
+---
+
+# Ejercicio QC
+
+
+![](img/multiqc.png)
+
+---
+
+# References
+
+- Conesa, A., Madrigal, P., Tarazona, S., Gomez-Cabrero, D., Cervera, A., McPherson, A., Szcześniak, M. W., Gaffney, D. J., Elo, L. L., Zhang, X., Mortazavi, A., Berulava, T., Buchholz, E., Elerdashvili, V., Pena, T., Islam, M. R., Lbik, D., Mohamed, B. A., Renner, A., … Mou, S. (2017). RNA-seq methods. Journal of Cellular Biochemistry, 8(1), 1–24. https://doi.org/10.1002/wrna.1364.RNA-Seq
+
