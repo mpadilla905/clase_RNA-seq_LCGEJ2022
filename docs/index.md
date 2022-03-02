@@ -1,37 +1,33 @@
-## Welcome to GitHub Pages
+clase RNA-seq LCGEJ2022
+================
 
-You can use the [editor on GitHub](https://github.com/mpadilla905/clase_RNA-seq_LCGEJ2022/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+Presentación:
+<https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#1>
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### Clonar este repositorio
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+``` bash
+git clone https://github.com/mpadilla905/clase_RNA-seq_LCGEJ2022.git
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+Recuerda hacer tu git token primero. Ve a
+<https://github.com/settings/profile> &gt; Selecciona
+`<> Developer Settings` de la lista &gt; `Personal Access Tokens` &gt;
+`Generate new token`
 
-### Jekyll Themes
+-   Dale un nombre
+-   Selecciona la duración del token
+-   Selecciona los permisos que tendrás con dicho token en github
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/mpadilla905/clase_RNA-seq_LCGEJ2022/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+Ve a `Generate token` &gt; **Guarda muy bien** en algún archivo este
+token pues no se te volverá a mostrar en github de nuevo.
 
-### Support or Contact
+------------------------------------------------------------------------
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+  
+
+### Agenda
+
+| Día | Temas                   | Link a presentación                                                           |
+|-----|-------------------------|-------------------------------------------------------------------------------|
+| 1   | Overview y Pre Análisis | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2> |
