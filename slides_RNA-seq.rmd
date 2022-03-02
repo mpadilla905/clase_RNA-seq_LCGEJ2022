@@ -366,6 +366,8 @@ _image from (Villaseñor-Altamirano AB, 2021)_
 
 ![](img/sra-run-selector.png)
 
+.red[Nota:] Notemos que cada una de las runs o tandas de secuenciación (identificadas con `SRR`), corresponden a una muestra biológica o réplica (identificadas con `SAMN`).
+
 .
 .
 .
@@ -391,7 +393,7 @@ cd mpadilla/clases/rnaseq # change to yours
 module load e-utilities/27abr20
 module load sra/2.9.6-1
 vdb-config -i # disable storage of cache in ~
-mkdir data
+mkdir -p data/fastq
 ```
 
 That opens an interface, press `2` (disable local file caching) > `6` (save) > `7` (exit).
@@ -399,11 +401,12 @@ That opens an interface, press `2` (disable local file caching) > `6` (save) > `
 ```{bash, eval=FALSE}
 # Get SRR accessions, then download fastq files
 esearch -db sra -query "SRP267712" |  efetch -format docsum | xtract -pattern Runs -ACC @acc  -element "&ACC" | xargs fastq-dump --outdir ./data/fastq --gzip --split-3
+mv *.fastq.gz data/fastq # move fastq files to their dir
 ```
 
 - QC
 
-dir = `rnaseq``
+current dir = `[mpadilla/clases/rnaseq]`
 
 ```{bash, eval=FALSE}
 module load fastqc/0.11.3
@@ -429,7 +432,7 @@ Adapters file downloaded from: https://github.com/timflutre/trimmomatic/blob/mas
 
 ```{bash, eval=FALSE}
 mkdir out/QC2
-fastqc ./out/trimmed*.fastq.gz -o ./out/QC2
+fastqc ./out/trimmed/*.fastq.gz -o ./out/QC2
 ```
 
 - Reporte multiqc
@@ -568,46 +571,106 @@ Programa `kallisto`
 
 ---
 
-# Ejercicio: Alineamiento y conteo
+# Ejercicio: 
 
 .scrollable[
+### Alineamiento y conteo usando [`kallisto`][kallisto]
 
-- Descargar [transcriptoma de referencia de ratón de GENCODE](https://www.gencodegenes.org/mouse/)
+.red[ Nota:] cualquier línea de código encerrada en `[]` es opcional o debe cambiarse para tus paths o caso especfíco.
+
+Ir a mi directorio en el cluster:
 
 ```{bash, eval=FALSE}
+ssh -Y mpadilla@[direccion]
+cd [/path/a/mi/dir]/mpadilla/
+# ir al directorio del proyecto o la clase
+cd [clases/rnaseq/]
+```
+
+
+Descargar [transcriptoma de referencia de ratón de GENCODE](https://www.gencodegenes.org/mouse/):
+
+```{bash, eval=FALSE}
+mkdir resources; cd resources
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M28/gencode.vM28.transcripts.fa.gz
+cd .. # regresar a rnaseq
 ```
 
-- Hacer índice del transcriptoma
+Hacer índice del transcriptoma de referencia que hicimos con GENCODE:
+
+- Ver ayuda en [manual de kallisto][kallisto] o en terminal ( `kallisto index -h` )
 
 ```{bash, eval=FALSE}
-module load kallisto/0.45.0
-kallisto index -i ./resources/kallisto/index_kallisto45_gencode-m28 /mnt/Citosina/amedina/mpadilla/resources/gencode/m28/gencode.vM28.transcripts.fa.gz
+module load kallisto/0.45.0 # cargar modulo de kallisto
+kallisto index -i index_kallisto45_gencode-m28s gencode.vM28.transcripts.fa.gz
+cd .. # salimos del dir resources
 ```
 
-- Hacer el conteo de transcritos
+* `-i` nombre de archivo de salida, i.e., indice
+
+Hacer liga blanda a archivos fastq ya corregidos con trimming:
 
 ```{bash, eval=FALSE}
-# desde rnaseq/
-mkdir out/kallisto
-module load kallisto/0.45.0
-kallisto quant -i /mnt/Citosina/amedina/mpadilla/resources/kallisto/index_kallisto45_gencode-m28 -o ./out/kallisto ./out/trimmed/* # once per sample!!
+#ln -rs /mnt/Citosina/amedina/mpadilla/clases/rnaseq/out/trimmed [path/a/tu/dir/]out/
 ```
 
-- Hacer dirs por muestra
+* .red[_Nota:_ ]en clase vimos que no podemos hacer esto si no tenemos permisos. Los datos se copiaron a `/mnt/Timina/bioinfoII/rnaseq/trimmed`
+
+Hacer el conteo de transcritos ocupando el índice que hicimos:
+
+```{bash, eval=FALSE}
+mkdir out/kallisto # usar -p si no existe out aun
+kallisto quant -i ./resources/index_kallisto45_gencode-m28 -o ./out/kallisto /mnt/Timina/bioinfoII/rnaseq/trimmed/* # once per sample!! #<<
+```
+
+* `-o` dir donde colocar output de kallisto
+
+- .red[La última línea está mal!] Ahí le estamos diciendo a `kallisto quant` que haga la cuantificación de transcritos con TODOS los archivos fastq, i.e. de todas las muestras juntas, por lo que las cuentas de controles y casos (M14 con BRAF ihnibido o no) estarán combinadas y no podremos hacer comparaciones
+
+Para correr `kallisto quant` POR muestra (`SAMN`, recordemos que en este caso cada run `SRR*.fastq` corresponde a una muestra), hagamos lo siguiente:
 
 ```{bash, eval=FALSE}
 cd out/kallisto
-# hacer dirs por muestra
-ls ../../data/fastq | perl -pe 's/_.*\s/\n/g' | uniq | perl -pe 's/(SRR.*)/mkdir $1/'
-# hacer archivo sge, que el output se dirija al dir de la muestra
-ls | grep "SRR" | perl -pe 's/(SRR\d+)/kallisto quant -i \/mnt\/Citosina\/amedina\/mpadilla\/resources\/kallisto\/index_kallisto45_gencode-m28 -o .\/$1 ..\/trimmed\/$1* /' > quant.sge
+# 1. Hacer dirs de salida para kallisto por muestra:
+ls ../trimmed/ | perl -pe 's/(SRR\d+)_trmd.*/mkdir $1/' | uniq # copiar texto y pegar en terminal
 ```
 
+```
+mkdir SRR12038081
+mkdir SRR12038082
+mkdir SRR12038083
+mkdir SRR12038084
+mkdir SRR12038085
+mkdir SRR12038086
+```
 
-- Pegar lo siguiente al sge (arriba):
+* `ls ../trimmed/` : vemos archivos fastq, identificados por SRR
+* `perl -pe 's/[match]/[substitution]/'` : con este formato llamamos a perl, `-pe` le dice que corra el siguiente código tomando como input cada línea del STDIN, `s/[match]/[substitution]/` denotamos una subtitución usando expresiones regulares, `(SRR\d+)_trmd.*` guardamos los ids con `()` y seleccionamos el resto, substituimos el texto por `mkdir $1` donde $1 es la variable que guardamos
+
+```{bash, eval=FALSE}
+# 2. Generar lineas para correr kallisto por muestra, ocupando el id SRR como identificador de archivos fastq y dirs
+ls | grep "SRR" | perl -pe 's/(SRR\d+)/kallisto quant -i ..\/..\/resources\/index_kallisto45_gencode-m28 -o .\/$1 ..\/trimmed\/$1* /' 
+# cambiar archivo en -i por el path a tu indice
+```
 
 ```
+kallisto quant -i ../../resources/index_kallisto45_gencode-m28 -o ./SRR12038081 ../trimmed/SRR12038081* 
+kallisto quant -i ../../resources/index_kallisto45_gencode-m28 -o ./SRR12038082 ../trimmed/SRR12038082* 
+kallisto quant -i ../../resources/index_kallisto45_gencode-m28 -o ./SRR12038083 ../trimmed/SRR12038083* 
+kallisto quant -i ../../resources/index_kallisto45_gencode-m28 -o ./SRR12038084 ../trimmed/SRR12038084* 
+kallisto quant -i ../../resources/index_kallisto45_gencode-m28 -o ./SRR12038085 ../trimmed/SRR12038085* 
+kallisto quant -i ../../resources/index_kallisto45_gencode-m28 -o ./SRR12038086 ../trimmed/SRR12038086*
+```
+
+* `grep` selecciona lineas de STDIN o texto que hagan match 
+* con perl escribimos las lineas para correr kallisto usando el string de las SRR ids al que hicimos match
+* `../trimmed/SRR12038081*` esta parte tomará las reads a las que hicimos trimmming; como los datos provienen de PAIRED END, son un fastq por cada end (`SRR_trmd_1.fastq` y `SRR_trmd_2.fastq`).
+
+_Nota:_ Otra manera de lidear con múltiples archivos, que generen múltiples archivos de salida y que necesitamos para correr en una pipeline es usando `snakemake` o `makefiles` en `bash`
+
+Pegar ese output siguiente al sge (`[quant.sge]`) y hacer `qsub quant.sge`
+
+```{bash, eval=FALSE}
 #!/bin/bash
 # Use current working directory
 #$ -cwd
@@ -621,20 +684,26 @@ ls | grep "SRR" | perl -pe 's/(SRR\d+)/kallisto quant -i \/mnt\/Citosina\/amedin
 #You can edit the scriptsince this line
 #   
 # Your job name
-#$ -N quant
+#$ -N [quant] # cambiar #<<
 #
 # Send an email after the job has finished
 #$ -m e
-#$ -M yourmail
+#$ -M [yourmail] #<<
 #
 #
 # If modules are needed, source modules environment (Do not delete the next line):
 . /etc/profile.d/modules.sh
 #
 # Add any modules you might require:
-module load kallisto/0.45.0
+module load kallisto/0.45.0 #<<
 #
 # Write your commands in the next line
+kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038081 ../trimmed/SRR12038081* 
+kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038082 ../trimmed/SRR12038082* 
+kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038083 ../trimmed/SRR12038083* 
+kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038084 ../trimmed/SRR12038084* 
+kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038085 ../trimmed/SRR12038085* 
+kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038086 ../trimmed/SRR12038086*
 ```
 
 ![](img/rna-icon.png)
@@ -664,3 +733,7 @@ module load kallisto/0.45.0
 
 
 
+
+
+
+[kallisto]:https://pachterlab.github.io/kallisto/manual
