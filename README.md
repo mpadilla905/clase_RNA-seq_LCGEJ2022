@@ -25,6 +25,14 @@ Recuerda hacer tu git token primero. Ve a
 Ve a `Generate token` &gt; **Guarda muy bien** en algún archivo este
 token pues no se te volverá a mostrar en github de nuevo.
 
+### Actualiza tu instancia del repo y abre la presentación
+
+``` bash
+cd [path/a/dir/con/repo]/clase_RNA-seq_LCGEJ2022.git
+git pull
+xdg-open slides_RNA-seq.html
+```
+
 ------------------------------------------------------------------------
 
 ### Requisitos
@@ -49,8 +57,8 @@ BiocManager::install(paquetes)
 ```
 
 -   Paquetes de R
-    -   wordcloud
-    -   RColorBrewer
+    -   wordcloud (opcional)
+    -   RColorBrewer (opcional)
     -   tidyverse
 
 ``` r
@@ -58,6 +66,8 @@ install.packages("tidyverse")
 installed.packages("wordcloud")
 install.packages("RColorBrewer")
 ```
+
+**Datos**
 
   
 
