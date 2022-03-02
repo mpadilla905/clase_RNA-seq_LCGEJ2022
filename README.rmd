@@ -25,6 +25,15 @@ Recuerda hacer tu git token primero. Ve a https://github.com/settings/profile > 
   
 Ve a `Generate token` > **Guarda muy bien** en algún archivo este token pues no se te volverá a mostrar en github de nuevo.
 
+### Actualiza tu instancia del repo y abre la presentación
+
+```{bash, eval=FALSE}
+cd [path/a/dir/con/repo]/clase_RNA-seq_LCGEJ2022.git
+git pull
+xdg-open slides_RNA-seq.html
+```
+
+
 ***
 
 ### Requisitos
@@ -74,3 +83,4 @@ install.packages("RColorBrewer")
 Día |     Temas               | Link a presentación
 ----|-------------------------|--------------------
 1   | Overview y Pre Análisis | https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2
+2   | Alineamiento y Conteo crudo | https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#20
