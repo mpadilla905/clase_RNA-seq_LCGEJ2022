@@ -4,8 +4,8 @@ clase RNA-seq LCGEJ2022
 Presentación:
 <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#1>
 
-Contenido inspirado en curso de RNA-seq de la Red Mexicana de
-Bioinformática: <https://comunidadbioinfo.github.io/minicurso_abr_2021/>
+Contenido de curso de RNA-seq de la Red Mexicana de Bioinformática:
+<https://comunidadbioinfo.github.io/minicurso_abr_2021/>
 
 ### Clonar este repositorio
 
@@ -39,7 +39,7 @@ xdg-open slides_RNA-seq.html
 
 **Programas**
 
--   [salmon](https://combine-lab.github.io/salmon/getting_started/)
+-   [kallisto](https://pachterlab.github.io/kallisto/)
 -   R &gt; 4.0
 -   RStudio
 -   Paquetes de R con Bioconductor
@@ -77,6 +77,7 @@ install.packages("RColorBrewer")
 
 ### Agenda
 
-| Día | Temas                   | Link a presentación                                                           |
-|-----|-------------------------|-------------------------------------------------------------------------------|
-| 1   | Overview y Pre Análisis | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2> |
+| Día | Temas                       | Link a presentación                                                            |
+|-----|-----------------------------|--------------------------------------------------------------------------------|
+| 1   | Overview y Pre Análisis     | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2>  |
+| 2   | Alineamiento y Conteo crudo | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#20> |
