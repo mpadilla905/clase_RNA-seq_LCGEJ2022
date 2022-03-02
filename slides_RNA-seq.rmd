@@ -5,11 +5,13 @@ author: "Mónica Padilla, Dra. Alejandra Medina"
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
-    css: [xaringan-themer.css, "slides_RNA-seq_files/extra.css"]
+    css: [xaringan-themer.css, "slides_RNA-seq_files/extra.css"] # theme; logo, img size
     includes:
      after_body: slides_RNA-seq_files/insert-logo.html # rna-logo
     lib_dir: libs
     nature:
+      highlightStyle: github
+      highlightLines: true # use #<<
       navigation:
         scroll: false # disable transitions by scrolling
 ---
@@ -326,4 +328,339 @@ Funciones:
 - [4] Villaseñor-Altamirano, A. B. & Chávez-Domínguez, R. L. "Mini curso abril 2021: Panorama general de análisis de datos de RNA-seq con R". Red Mexicana de Bioinformática (2021). https://comunidadbioinfo.github.io/minicurso_abr_2021/
 
 - [5] Created with BioRender.com
+
+---
+
+# Día 2
+
+.scrollable[
+
+**Agenda:**
+
+- Caso de estudio, pipeline so far, revisión QC
+
+- In-depth Pipeline bioinformática
+  - Alineamiento, Pseudoalineamiento y Conteo
+  - Visualizacion de reads en IGV
+  - Algoritmos de programas famosos
+  - Ejercicio: pseudo-alineamiento con `kallisto`
+
+]
+
+??
+
+¿Cómo tengo certeza de que mi gen no es un artefacto?
+
+---
+
+# Caso de estudio: BRAF inhibition in melanoma cell lines
+
+.scrollable[
+Número de acceso GEO: [GSE152699](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE152699)
+
+![](img/caso_estudio.png)
+
+_image from (Villaseñor-Altamirano AB, 2021)_
+
+[SRA Run Selector: SRP267712](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA640146&o=acc_s%3Aa) :
+
+![](img/sra-run-selector.png)
+
+.
+.
+.
+.
+
+]
+
+---
+
+# Pipeline so far
+
+.scrollable[
+```{bash, eval=FALSE}
+screen -S data
+qlogin
+umask 2 # permisos
+cd mpadilla/clases/rnaseq # change to yours
+```
+
+- Obtener archivos fastq
+
+```{bash, eval=FALSE}
+module load e-utilities/27abr20
+module load sra/2.9.6-1
+vdb-config -i # disable storage of cache in ~
+mkdir data
+```
+
+That opens an interface, press `2` (disable local file caching) > `6` (save) > `7` (exit).
+
+```{bash, eval=FALSE}
+# Get SRR accessions, then download fastq files
+esearch -db sra -query "SRP267712" |  efetch -format docsum | xtract -pattern Runs -ACC @acc  -element "&ACC" | xargs fastq-dump --outdir ./data/fastq --gzip --split-3
+```
+
+- QC
+
+dir = `rnaseq``
+
+```{bash, eval=FALSE}
+module load fastqc/0.11.3
+fastqc ./data/fastq/*.fastq.gz -o ./out/QC
+```
+
+
+- Trimming
+
+Correr iterativamente trimmomatic
+
+```{bash, eval=FALSE}
+mkdir out/trimmed
+cd out/trimmed
+module load trimmomatic/0.33
+for file in ../../data/fastq/*1.fastq.gz; do trimmomatic PE -phred33 -basein $file -baseout ${file//_1.fastq/_trmd_1.fastq} ILLUMINACLIP:/mnt/Citosina/amedina/mpadilla/resources/trimmomatic/adapters/TruSeq3-PE.fa:2:30:10 SLIDINGWINDOW:5:30 MINLEN:40; done
+cd ../..
+```
+
+Adapters file downloaded from: https://github.com/timflutre/trimmomatic/blob/master/adapters/TruSeq3-PE.fa, [HiSeq uses TruSeq3 adapters as indicated in trimmomatic manual](http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/TrimmomaticManual_V0.32.pdf).
+
+- QC
+
+```{bash, eval=FALSE}
+mkdir out/QC2
+fastqc ./out/trimmed*.fastq.gz -o ./out/QC2
+```
+
+- Reporte multiqc
+
+```{bash, eval=FALSE}
+module load multiqc/1.5
+multiQC ./out/QC2
+pwd
+```
+
+- See file
+
+In local:
+
+```{bash, eval=FALSE}
+rsync -rptuvl mpadilla@dna.liigh.unam.mx:/mnt/Citosina/amedina/mpadilla/clases/rnaseq/out/QC2/multiqc_report.html . # descargar
+xdg-open multiqc_report.html # abrir archivo
+```
+
+
+]
+
+---
+
+# Pipeline: Dónde estamos
+
+.container[
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/RNAseq_workflow2.png)
+]
+
+---
+
+# Alineamiento
+
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/ReadAlignment.png)
+
+---
+
+# Alineamiento y Conteo
+
+¿Cómo saber qué tipo de algoritmo usar?
+
+![](img/alineamiento.png)
+
+---
+
+# Alineamiento con referencia
+
+.pull-left[
+![](img/alineamiento_referencia.png)
+]
+
+.pull-right[
+- ¿Encontrar nuevos transcritos o sólo cuantificar?
+  - PE y alta cobertura
+  
+- Mapeo singular o múltiple de lecturas
+  - Secuencias repetidas en el genoma, genes paralogos
+  - Mayor mapeo múltiple con transcriptoma debido a isoformas
+]
+
+---
+
+### Genoma de referencia
+
+![](img/alineamiento_ref_splicing.png)
+
+_image from (Villaseñor-Altamirano AB, 2021)_
+
+---
+
+### Ejemplos genoma de referencia
+
+_ _splicing aware__ : Hacen gaps en los reads al compara con el genoma de referencia
+
+.container[
+![](img/hisat_star_tophat2png)]
+
+_image from (Villaseñor-Altamirano AB, 2021)_
+
+---
+
+![](img/rna-seq_igv.png)
+
+---
+
+### Ejemplo transcriptoma de referencia
+
+Programa `kallisto`
+
+- Precisos al caracterizar transcritos con alta abundancia, menos precisos con transcritos con menos o cortos
+
+.fit[
+![](https://media.springernature.com/full/springer-static/image/art%3A10.1038%2Fnbt.3519/MediaObjects/41587_2016_Article_BFnbt3519_Fig1_HTML.jpg?as=webp)]
+
+---
+
+# Ensamblaje de novo
+
+.pull-left[
+- Uso de PE o lecturas largas
+
+- Balance en cobertura
+    - Transcritos de baja expresión: unreliable
+    - Mucha cobertura: potencial ensamblaje erróneo y mayor tiempo de ejecución
+    
+- Combinar reads de todas las muestras para el ensamblaje --> comparaciones adecuadas
+]
+
+.pull-right[
+.container2[
+![](img/denovo_assembly.png)
+]]
+
+---
+
+# Cuantificación de transcritos
+
+.scrollable[
+- Enfoque simple: número de reads que mapearon a cada secuencia
+    - `HTSeq-count`, `featureCounts`
+      - Gene-level => gene transfer format (GTF)
+    - `Cufflinks`: PE, GTF o no, toma en cuenta sesgos de longitud de genes, distribución de reads
+
+- `sailfish` : k-meros de reads
+
+- ¿Cómo sé que mis cuentas corresponden a genes/transcritos?
+  - Referencia con anotaciones
+  - [GENCODE](https://www.gencodegenes.org/mouse/)
+  - [Ensembl](https://www.ensembl.org/info/data/ftp/index.html)
+
+`output` : **Cuentas crudas** o _raw counts_
+¿Ya puedo comparar mis niveles de expresión en mi experimento?
+
+]
+
+---
+
+# Ejercicio: Alineamiento y conteo
+
+.scrollable[
+
+- Descargar [transcriptoma de referencia de ratón de GENCODE](https://www.gencodegenes.org/mouse/)
+
+```{bash, eval=FALSE}
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_mouse/release_M28/gencode.vM28.transcripts.fa.gz
+```
+
+- Hacer índice del transcriptoma
+
+```{bash, eval=FALSE}
+module load kallisto/0.45.0
+kallisto index -i ./resources/kallisto/index_kallisto45_gencode-m28 /mnt/Citosina/amedina/mpadilla/resources/gencode/m28/gencode.vM28.transcripts.fa.gz
+```
+
+- Hacer el conteo de transcritos
+
+```{bash, eval=FALSE}
+# desde rnaseq/
+mkdir out/kallisto
+module load kallisto/0.45.0
+kallisto quant -i /mnt/Citosina/amedina/mpadilla/resources/kallisto/index_kallisto45_gencode-m28 -o ./out/kallisto ./out/trimmed/* # once per sample!!
+```
+
+- Hacer dirs por muestra
+
+```{bash, eval=FALSE}
+cd out/kallisto
+# hacer dirs por muestra
+ls ../../data/fastq | perl -pe 's/_.*\s/\n/g' | uniq | perl -pe 's/(SRR.*)/mkdir $1/'
+# hacer archivo sge, que el output se dirija al dir de la muestra
+ls | grep "SRR" | perl -pe 's/(SRR\d+)/kallisto quant -i \/mnt\/Citosina\/amedina\/mpadilla\/resources\/kallisto\/index_kallisto45_gencode-m28 -o .\/$1 ..\/trimmed\/$1* /' > quant.sge
+```
+
+
+- Pegar lo siguiente al sge (arriba):
+
+```
+#!/bin/bash
+# Use current working directory
+#$ -cwd
+#
+# Join stdout and stderr
+#$ -j y
+#
+# Run job through bash shell
+#$ -S /bin/bash
+#
+#You can edit the scriptsince this line
+#   
+# Your job name
+#$ -N quant
+#
+# Send an email after the job has finished
+#$ -m e
+#$ -M yourmail
+#
+#
+# If modules are needed, source modules environment (Do not delete the next line):
+. /etc/profile.d/modules.sh
+#
+# Add any modules you might require:
+module load kallisto/0.45.0
+#
+# Write your commands in the next line
+```
+
+![](img/rna-icon.png)
+
+]
+
+---
+
+
+---
+
+#
+
+---
+
+# Normalización
+
+- Las cuentras crudas no son adecuadas para comparar entre muestras
+  - Gene/transcript length
+  - Número total de reads
+  - Sesgos de secuenciación
+  
+- Normalización _within-sample_
+  - Tamaño de librería: Número de secuenciación de lecturas para una muestra dada
+
+
+
+
 
