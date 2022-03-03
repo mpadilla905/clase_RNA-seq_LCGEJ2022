@@ -60,6 +60,7 @@ BiocManager::install(paquetes)
     -   wordcloud (opcional)
     -   RColorBrewer (opcional)
     -   tidyverse
+        -   dplyr, stringr
 
 ``` r
 install.packages("tidyverse")
@@ -69,6 +70,12 @@ install.packages("RColorBrewer")
 
 **Datos**
 
+-   [SRA Run Selector:
+    SRP267712](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=PRJNA640146&o=acc_s%3Aa)
+
+-   Descarga:
+    <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#22>
+
   
 
 ------------------------------------------------------------------------
@@ -77,7 +84,8 @@ install.packages("RColorBrewer")
 
 ### Agenda
 
-| Día | Temas                       | Link a presentación                                                            |
-|-----|-----------------------------|--------------------------------------------------------------------------------|
-| 1   | Overview y Pre Análisis     | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2>  |
-| 2   | Alineamiento y Conteo crudo | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#20> |
+| Día | Temas                                                             | Link a presentación                                                            |
+|-----|-------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| 1   | Overview y Pre Análisis                                           | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2>  |
+| 2   | Alineamiento y Conteo crudo                                       | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#20> |
+| 3   | Integracion de datos, Normalización y Corrección por batch effect | <https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#35> |

@@ -4,7 +4,7 @@
     <title>RNA-seq</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mónica Padilla, Dra. Alejandra Medina" />
-    <meta name="date" content="2022-03-02" />
+    <meta name="date" content="2022-03-03" />
     <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="slides_RNA-seq_files/extra.css" type="text/css" />
@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # RNA-seq
 ## Bioformática - LCG-EJ
 ### Mónica Padilla, Dra. Alejandra Medina
-### 2022-03-02
+### 2022-03-03
 
 ---
 
@@ -738,11 +738,205 @@ kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038086 ../trimmed/SRR12
 
 ---
 
-#
+# Día 3
+
+**Agenda:**
+
+- Pipeline: Dónde estamos
+
+- Importación e integración de datos
+  - Ejercicio
+
+- Normalización
+
+- Corrección de _batches_
+  - Exploración de datos con PCA
+
+---
+
+# Preguntas
+
+- The GFF3 (General Feature Format) format consists of one line per feature, each containing 9 columns of data . [see more](http://www.ensembl.org/info/website/upload/gff3.html)
+
+- The GTF (General Transfer Format) is identical to GFF version 2. [see more](http://www.ensembl.org/info/website/upload/gff.html)
+
+- GitHub Max Storage (FREE) : 2GB
+
+.container[
+![](https://www.researchgate.net/profile/Julita-Kulbacka/publication/325794199/figure/fig2/AS:637892296728576@1529096783673/Scheme-2-Vemurafenib-and-dabrafenib-mechanism-of-action-Modified-from-R-Fisher-and.png)
+]
+
+---
+
+# Pipeline: Dónde estamos
+
+.scrollable[
+![](img/RNAseq_workflow_add.png)
+
+_modified from (Villaseñor-Altamirano AB, 2021)_
+
+Nuestro proyecto se ve algo así hasta ahora:
+
+![](img/terminal_dia3.png)
+
+Ver archivo:
+
+
+```bash
+cd /mnt/Timina/bioinfoii/rnaseq
+less out/kallisto/SRR12038081/abundance.tsv
+```
+
+
+]
+
+???
+
+* `abundances.h5` is a HDF5 binary file containing run info, abundance esimates, bootstrap estimates, and transcript length information length.
+* `abundances.tsv` is a plaintext file of the abundance estimates. It does not contains bootstrap estimates. The first line contains a header for each column, including estimated counts, TPM, effective length.
+
+    + `target_id` = transcript id, cambia dependiendo del archivo de anotacion
+    + `length` 
+    + `eff_length` = effective length
+    + `est_counts` = estimated counts
+    + `tpm` = Transcripts per million (TPM) is a measurement of the proportion of transcripts in your pool of RNA.
+
+* `run_info.json` is a json file containing information about the run. We can facilitate further work by saving this files in a dir with the SRA ID name.
+
+---
+
+# Importación e Integración de datos
+
+.scrollable[
+![](img/counts-matrix.png)
+
+Paquetes bioconductor: `tximeta` y [`tximport`](https://bioconductor.org/packages/devel/bioc/vignettes/tximport/inst/doc/tximport.html)
+
+![](img/CVpyU2pWcAIwJAl.png)
+]
+
+---
+
+# Ejercicio
+
+.scrollable[
+
+**Summarizing to gene level from transcript abundance with `tximport`**
+
+
+```bash
+screen -S txi
+qlogin
+cd [su/path/en/cluster]
+cd out/kallisto/
+module load r/4.0.2
+R
+```
+
+En R:
+
+
+```r
+library(tximport)
+library(tidyverse) # stringr
+
+# Load data
+files &lt;- file.path("/mnt/Timina/bioinfoII/rnaseq/out/kallisto",list.dirs(dir(".")),"abundance.h5") # abundance files paths
+names(files) &lt;- str_extract(files,"SRR\\d+") # so that tximport identifies them
+files
+```
+```
+                                                         SRR12038081 
+"/mnt/Timina/bioinfoII/rnaseq/out/kallisto/SRR12038081/abundance.h5" 
+                                                         SRR12038082 
+"/mnt/Timina/bioinfoII/rnaseq/out/kallisto/SRR12038082/abundance.h5" 
+                                                         SRR12038083 
+"/mnt/Timina/bioinfoII/rnaseq/out/kallisto/SRR12038083/abundance.h5" 
+                                                         SRR12038084 
+"/mnt/Timina/bioinfoII/rnaseq/out/kallisto/SRR12038084/abundance.h5" 
+                                                         SRR12038085 
+"/mnt/Timina/bioinfoII/rnaseq/out/kallisto/SRR12038085/abundance.h5" 
+                                                         SRR12038086 
+"/mnt/Timina/bioinfoII/rnaseq/out/kallisto/SRR12038086/abundance.h5"
+```
+
+
+```r
+# Load table with trx id and gene id corrspondence
+tx2gene &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.vM28.basic.trx_id-gene_id-no_ver.tsv",stringsAsFactors = F)
+# Load table with trx id and gene name corrspondence
+tx2genename &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.vM28.basic.trx_id-gene_name-no_ver.tsv",stringsAsFactors = F)
+
+# Run tximport
+# tx2gene links transcript IDs to gene IDs for summarization
+txi.kallisto &lt;- tximport(files, type = "kallisto", tx2gene = tx2gene, ignoreAfterBar=TRUE, ignoreTxVersion=TRUE)
+txi.kallisto.name &lt;- tximport(files, type = "kallisto", tx2gene = tx2genename, ignoreAfterBar=TRUE, ignoreTxVersion=TRUE)
+```
+```
+1 2 3 4 5 6 
+removing duplicated transcript rows from tx2gene
+transcripts missing from tx2gene: 92813
+summarizing abundance
+summarizing counts
+summarizing length
+```
+
+
+```r
+names(txi.kallisto)
+```
+```
+[1] "abundance"           "counts"              "length"             
+[4] "countsFromAbundance"
+```
+
+```r
+head(txi.kallisto$counts)
+```
+```
+                   SRR12038081 SRR12038082 SRR12038083 SRR12038084 SRR12038085
+ENSMUSG00000000001   130.00000    73.00000    53.00000          60   96.000000
+ENSMUSG00000000056     0.00000     0.00000     0.00000           0    0.000000
+ENSMUSG00000000058     2.00000     1.00000     2.00000           2    4.000000
+ENSMUSG00000000078    13.58842    13.58842    12.22958           9    4.076527
+ENSMUSG00000000088    81.00000    43.00000    38.00000          31   47.000000
+ENSMUSG00000000093    15.00000    11.00000     8.00000           7   12.000000
+                   SRR12038086
+ENSMUSG00000000001    98.00000
+ENSMUSG00000000056     0.00000
+ENSMUSG00000000058     0.00000
+ENSMUSG00000000078     5.43537
+ENSMUSG00000000088    70.00000
+ENSMUSG00000000093    15.00000
+```
+
+transcript estimatio--&gt; read counts
+
+]
 
 ---
 
 # Normalización
+
+### ¿Por qué es necesario normalizar?
+
+Nuestros datos están sujetos a **sesgos técnicos y biológicos** que provocan variabilidad en las cuentas.
+
+Si queremos hacer **comparaciones de niveles de expresión entre muestras** es necesario ajustar los datos tomando en cuenta estos sesgos.
+
+- Análisis de expresión diferencial
+- Visualización de datos
+- en general, siempre que estemos comparando expresión
+
+
+### ¿Qué es normalizar en sí?
+
+El proceso de ajuste de las cuentas (scaling factors) por los sesgos "no interesantes" de varibialidad.
+
+???
+
+Comparar niveles de expresión entre genes y entre muestras.
+
 
 - Las cuentras crudas no son adecuadas para comparar entre muestras
   - Gene/transcript length
@@ -752,12 +946,129 @@ kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038086 ../trimmed/SRR12
 - Normalización _within-sample_
   - Tamaño de librería: Número de secuenciación de lecturas para una muestra dada
 
+---
+
+## Criterios o sesgos a considerar
+
+- Pueden ser relevantes para la comparacion de la expresión .red[entre muestras distintas] (eg muestra control vs muestra caso) y/o .red[dentro de una misma muestra] muestras (entre genes).
+
+- __Sequencing depth__ : En este caso, cada gen parece expresarse el doble cuando comparamos `Sample A` vs `Sample B`, sin embargo, sólo parece a sí porque la `Sample A` tuvo el doble de secuenciación
+ 
+  - .red[entre muestras distintas]
+
+.fit[  
+![](https://hbctraining.github.io/DGE_workshop/img/normalization_methods_depth.png)
+]
+
+---
+
+## Criterios o sesgos a considerar
+
+- __Sequencing depth__ 
+
+  - **Método:** Dividir por el size factor
+
+![](img/normalization_sequencing-depth.png)
+
+---
+
+## Criterios o sesgos a considerar
+
+.pull-left[
+- __Gene length__ : El `Gene X` y el `Gene Y` tienen tienen niveles similares de expresión pero el número de lecturas mapeadas será mayor en el `Gen X` porque es más largo.
+
+  - .red[misma muestra]
+  - Método: dividir por el largo del gen
+]
 
 
+.pull-right[
+.fit[
+![](https://hbctraining.github.io/DGE_workshop/img/normalization_methods_length.png)
+]
+]
+
+---
+
+## Criterios o sesgos a considerar
+
+.pull-left[
+- __Composición de RNA__ : Si normalizamos dividiendo las cuentas entre el numero total de cuentas en cada muestra, el resto de los genes en la Sample A se verán ampliamente afectados por el Gene DE
+
+  - .red[entre muestras distintas]
+
+  - Genes altamente diferencialmente expresados 
+  
+  - Diferencias en el número de genes expresados -- PCR
+  
+  - Contaminación
+  
+]
+
+.pull-right[.fit[
+![](https://hbctraining.github.io/DGE_workshop/img/normalization_methods_composition.png)]
+]
+
+---
+
+.scrollable[
+![](img/metodos_normalizacion.png)]
+
+---
+
+# Correción por _batch effect_
+
+**Mal diseño experimental  ==&gt;  Mucho _batch effect_**
+
+- En este caso no se podría tener certeza sobre ningún resultado
+
+![](img/exp-design_malo_batcheffect.png)
+
+---
+
+# Correción por _batch effect_
+
+**Buen diseño experimental, pero aun puede haber variación técnica**
+
+![](img/exp-design_bueno.png)
+
+---
+
+# Correción por _batch effect_
+
+¡Pero no todo está perdido!
+
+![](img/batch_correction.png)
+
+---
+
+# Métodos para RNA-seq
+
+.scrollable[
+- `edgeR`
+- `ComBat -batch`
+- `ComBat_seq -batch -bio_conditions` :
+    - Supone una binomial negativa
 
 
+![](https://oup.silverchair-cdn.com/oup/backfile/Content_public/Journal/nargab/2/3/10.1093_nargab_lqaa078/2/m_lqaa078fig4.jpeg?Expires=1649082255&amp;Signature=RLNrzqhL4-ZpE8QDLsJGDvQQH2hVs7x~rRTl4VbfKkBQg-n16PrOm2FYv90qNcW4il~mNDlFiduXI4ygNQzYBeWUIld18CdV1BEYbQeCVAT1vp2AtVA01sM0mTv6ZquaanL2sGpqY5gy~T736gq~PQs4YxuS1PcZOphkD840zB-Mbla3u5ZMezryTDAmQk4aMOWkJ7-Lpi-UCuy7RtefhPIniVILFZl4lSKNP8BStcKn6cYWA8UuxFo6vX5FfozExtkGtVLFGw4D0~j7uC0~~gXT9QR8vfkcIGfM2VMwMmbg~D0mndScujE0WTrct61LEuFm0N6zGZe9xFR17GfiOw__&amp;Key-Pair-Id=APKAIE5G5CRDK6RD3PGA)
 
+]
 
+---
+
+# Visualización con datos reales
+
+![](https://www.biorxiv.org/content/biorxiv/early/2017/10/09/200345/F3.large.jpg?width=800&amp;height=600&amp;carousel=1)
+
+- Balance entre integración de datasets para ganar poder estadístico y la capacidad de los algoritmos por deshacerse del _batch effect_
+
+---
+
+# Referencias
+
+- https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html
+- combat
 
 [kallisto]:https://pachterlab.github.io/kallisto/manual
     </textarea>
