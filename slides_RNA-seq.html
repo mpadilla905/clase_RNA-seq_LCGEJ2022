@@ -4,7 +4,7 @@
     <title>RNA-seq</title>
     <meta charset="utf-8" />
     <meta name="author" content="Mónica Padilla, Dra. Alejandra Medina" />
-    <meta name="date" content="2022-03-03" />
+    <meta name="date" content="2022-03-04" />
     <script src="libs/header-attrs-2.11/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
     <link rel="stylesheet" href="slides_RNA-seq_files/extra.css" type="text/css" />
@@ -16,7 +16,7 @@ class: center, middle, inverse, title-slide
 # RNA-seq
 ## Bioformática - LCG-EJ
 ### Mónica Padilla, Dra. Alejandra Medina
-### 2022-03-03
+### 2022-03-04
 
 ---
 
@@ -60,22 +60,11 @@ class: center, middle, inverse, title-slide
 
 ```r
 library(wordcloud)
-```
-
-```
-## Loading required package: RColorBrewer
-```
-
-```r
 library(RColorBrewer)
 
 words &lt;- c("Librería,","Secuenciación,","Transcripción,","samtools,","RNA,","","Regulación,","Nucleótido,","Traducción","RNA,","secuenciación,","proteínas,","regulación,","expresión","génica","Secuenciación,","expresión","diferencial,","transcriptoma,","fenotipos","exones","Transcriptoma,","expresión","diferencial,","RNA,","diferencia","celular","Transcripción,","regulación,","expresión,","muestra","Expresion,","exones,","transcriptoma,","UTR,","hisat2,","splicing,","Transcritoma,","splicing,","cDNA")
 
 wordcloud(words, colors = RColorBrewer::brewer.pal(5,name = "BuPu"))
-```
-
-```
-## Loading required namespace: tm
 ```
 
 ![](slides_RNA-seq_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
@@ -705,7 +694,7 @@ Pegar ese output siguiente al sge (`[quant.sge]`) y hacer `qsub quant.sge`
 #$ -S /bin/bash
 #
 #You can edit the scriptsince this line
-#   
+#
 # Your job name
 *#$ -N [quant] # cambiar
 #
@@ -735,6 +724,13 @@ kallisto quant -i index_kallisto45_gencode-m28 -o ./SRR12038086 ../trimmed/SRR12
 
 ---
 
+# Referencias
+
+- Grigore, F., Yang, H., Hanson, N. D., VanBrocklin, M. W., Sarver, A. L., &amp; Robinson, J. P. (2020). BRAF inhibition in melanoma is associated with the dysregulation of histone methylation and histone methyltransferases. Neoplasia, 22(9), 376-389.
+
+- Conesa, A., Madrigal, P., Tarazona, S., … Mou, S. (2017). RNA-seq methods. Journal of Cellular Biochemistry, 8(1), 1–24. https://doi.org/10.1002/wrna.1364.RNA-SeqConesa, A., Madrigal, P., Tarazona, S., … Mou, S. (2017). RNA-seq methods. Journal of Cellular Biochemistry, 8(1), 1–24. https://doi.org/10.1002/wrna.1364.RNA-Seq
+
+- NL Bray, H Pimentel, P Melsted and L Pachter, Near optimal probabilistic RNA-seq quantification, Nature Biotechnology 34, p 525--527 (2016).
 
 ---
 
@@ -841,7 +837,7 @@ library(tximport)
 library(tidyverse) # stringr
 
 # Load data
-files &lt;- file.path("/mnt/Timina/bioinfoII/rnaseq/out/kallisto",list.dirs(dir(".")),"abundance.h5") # abundance files paths
+files &lt;- file.path("/mnt/Timina/bioinfoII/rnaseq/out/kallisto",list.dirs(dir2counts),"abundance.h5") # abundance files paths
 names(files) &lt;- str_extract(files,"SRR\\d+") # so that tximport identifies them
 files
 ```
@@ -863,9 +859,9 @@ files
 
 ```r
 # Load table with trx id and gene id corrspondence
-tx2gene &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.vM28.basic.trx_id-gene_id-no_ver.tsv",stringsAsFactors = F)
+tx2gene &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.v38.basic.pc.transcripts.enstid_ensgid-nover.csv",stringsAsFactors = F)
 # Load table with trx id and gene name corrspondence
-tx2genename &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.vM28.basic.trx_id-gene_name-no_ver.tsv",stringsAsFactors = F)
+tx2genename &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.v38.basic.pc.transcripts.enstid_genename-nover.csv",stringsAsFactors = F)
 
 # Run tximport
 # tx2gene links transcript IDs to gene IDs for summarization
@@ -910,7 +906,7 @@ ENSMUSG00000000088    70.00000
 ENSMUSG00000000093    15.00000
 ```
 
-transcript estimatio--&gt; read counts
+transcript estimation --&gt; read counts
 
 ]
 
@@ -1016,7 +1012,7 @@ Comparar niveles de expresión entre genes y entre muestras.
 
 ---
 
-# Correción por _batch effect_
+# Corrección por _batch effect_
 
 **Mal diseño experimental  ==&gt;  Mucho _batch effect_**
 
@@ -1026,7 +1022,7 @@ Comparar niveles de expresión entre genes y entre muestras.
 
 ---
 
-# Correción por _batch effect_
+## Corrección por _batch effect_
 
 **Buen diseño experimental, pero aun puede haber variación técnica**
 
@@ -1034,7 +1030,7 @@ Comparar niveles de expresión entre genes y entre muestras.
 
 ---
 
-# Correción por _batch effect_
+## Corrección por _batch effect_
 
 ¡Pero no todo está perdido!
 
@@ -1042,7 +1038,7 @@ Comparar niveles de expresión entre genes y entre muestras.
 
 ---
 
-# Métodos para RNA-seq
+# Métodos de ajuste para RNA-seq
 
 .scrollable[
 - `edgeR`
@@ -1057,7 +1053,7 @@ Comparar niveles de expresión entre genes y entre muestras.
 
 ---
 
-# Visualización con datos reales
+# Visualización de datos reales
 
 ![](https://www.biorxiv.org/content/biorxiv/early/2017/10/09/200345/F3.large.jpg?width=800&amp;height=600&amp;carousel=1)
 
@@ -1067,8 +1063,368 @@ Comparar niveles de expresión entre genes y entre muestras.
 
 # Referencias
 
-- https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html
-- combat
+- Soneson, C., Love, M. I., &amp; Robinson, M. D. (2015). Differential analyses for RNA-seq: transcript-level estimates improve gene-level inferences. F1000Research, 4.
+
+- Meeta Mistry, R. K. (2017, April 26). Count normalization with deseq2. Introduction to DGE - ARCHIVED. Retrieved March 3, 2022, from https://hbctraining.github.io/DGE_workshop/lessons/02_DGE_count_normalization.html 
+
+- Zhang, Y., Parmigiani, G., &amp; Johnson, W. E. (2020). ComBat-seq: batch effect adjustment for RNA-seq count data. NAR genomics and bioinformatics, 2(3), lqaa078.
+
+---
+
+# Día 4
+
+**Agenda:**
+
+- Pipeline: Dónde estamos
+  - Ejercicio: Normalización de DESeq2
+  - Ejercicio: Visualización de datos
+
+- Análisis de Expresión Diferencial
+  - Ejercicio con `DESeq2`
+
+- Análisis Funcional
+
+---
+
+# Pipeline: Dónde estamos 
+
+.scrollable[
+![](img/RNAseq_workflow_last.png)
+
+- Leer detalles de experimento
+- Los programas trabajan con el input que le das
+
+ver sge de `kallisto quant`:
+
+```bash
+less /mnt/Citosina/amedina/mpadilla/clases/rnaseq/out/kallistoh/quant.sge
+```
+```
+kallisto quant -i /mnt/Citosina/amedina/mpadilla/resources/kallisto/index_kallisto45_gencode38_hsapiens_cds -o ./SRR12038081 ../trimmed/SRR12038081*
+```
+]
+
+---
+
+# Normalización con DESEq2
+
+.scrollable[
+- Normalización para DE: ajuste por 
+
+  - .spoiler[ Composición de RNA y _Sequencing depth_ ]
+
+- `DESeq2` ajusta a un modelo lineal generalizado (GLM) de la familia binomial negativa (NB).
+
+```
+## # A tibble: 2 x 3
+##   gene  muestraA muestraB
+##   &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 gene1     1749      943
+## 2 gene2       35       29
+```
+
+- Crea una pseudo-referencia por muestra (promedio geometrico por fila) 
+
+`\({\bar {x}}={\sqrt[{n}]{\prod _{i=1}^{n}{x_{i}}}}={\sqrt[{n}]{x_{1}\cdot x_{2}\cdots x_{n}}}\)`
+
+```
+## # A tibble: 2 x 4
+## # Rowwise: 
+##   gene  muestraA muestraB prom_geom
+##   &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1 gene1     1749      943    1284. 
+## 2 gene2       35       29      31.9
+```
+
+Se calcula la fracción `\(muestraN/prom-gem\)`
+
+```
+## # A tibble: 2 x 6
+## # Rowwise: 
+##   gene  muestraA muestraB prom_geom muestraA_pseudo_ref muestraB_pseudo_ref
+##   &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;               &lt;dbl&gt;               &lt;dbl&gt;
+## 1 gene1     1749      943    1284.                 1.36               0.734
+## 2 gene2       35       29      31.9                1.10               0.910
+```
+
+Se calcula un factor de normalización (size factor) utilizando la mediana por columnas.
+
+```
+## [1] 1.230235
+## [1] 0.8222689
+```
+
+Se dividen las `\(cuentas-crudas/size-factor\)` para calcular las cuentas normalizadas.
+
+```
+## # A tibble: 2 x 3
+## # Rowwise: 
+##   gene  muestraA muestraB
+##   &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+## 1 gene1     1749      943
+## 2 gene2       35       29
+```
+
+```
+## # A tibble: 2 x 2
+## # Rowwise: 
+##   norm_muestraA norm_muestraB
+##           &lt;dbl&gt;         &lt;dbl&gt;
+## 1        1422.         1147. 
+## 2          28.4          35.3
+```
+
+
+
+_tomado de (Vilaseñor-Altamirano AB, 2021)_
+
+]
+
+---
+
+
+# Otras transformaciones
+
+.scrollable[
+Puedes realizar otras transformaciones en `DESeq2` para estabilizar la varianza a través de los differentes valores promedio de expresión.
+
+  - Variance stabilizing transformation `vst` (n &lt; 30 )
+  - Regularized-logarithm transformation (rlog)
+
+Propósito: visualización
+
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Slides_files/figure-html/unnamed-chunk-83-1.png)
+
+Los genes con menor expresión tienen más varianza.
+
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Slides_files/figure-html/unnamed-chunk-83-2.png)
+
+_Slide tomada de (Villaseñor-Altamirano, 2021)_
+]
+
+---
+
+# Análisis de Expresión Diferencial
+
+**¿La diferencia de expresión entre controles vs caso es significativa?**
+
+.container[
+![](img/de_ejemplo1.png)
+]
+
+---
+
+# Análisis de Expresión Diferencial
+
+**¿La diferencia de expresión entre controles vs caso es significativa?**
+
+.container[
+![](https://raw.githubusercontent.com/hbctraining/DGE_workshop/master/img/de_theory.png)
+]
+
+---
+
+# Ejercicio: Normalización y DE con `DESeq2`
+
+.scrollable[
+
+- input: un-normalized, count (or estimated count/fragments) data in the form of a matrix of integer values
+
+
+```r
+getwd()
+```
+```
+[1] "/mnt/Citosina/amedina/mpadilla/clases/rnaseq"
+```
+Generar matriz de cuentas con `tximport` (Vease slide 39)
+
+
+```r
+library(tximport)
+library(tidyverse) # stringr
+# ajustar esta línea porque estoy parada en otro dir
+files &lt;- file.path("/mnt/Timina/bioinfoII/rnaseq",list.dirs("out/kallistoh"),"abundance.h5")[-1]
+names(files) &lt;- str_extract(files,"SRR\\d+")
+# Load table with trx id and gene id corrspondence
+tx2gene &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/resources/gencode/gencode.v38.basic.pc.transcripts.enstid_genename-nover.csv",stringsAsFactors = F)
+# Generar matriz
+txi.kallisto &lt;- tximport(files, type = "kallisto", tx2gene = tx2gene, ignoreAfterBar=TRUE, ignoreTxVersion=TRUE)
+txi.kallisto$counts %&gt;% head
+```
+```
+       SRR12038081 SRR12038082 SRR12038083 SRR12038084 SRR12038085 SRR12038086
+KLHL17    2.043531           3    7.724302   16.000000    19.00000    2.995178
+NOC2L   249.941470         151  102.790889  251.562665   292.69206  196.903335
+OR4F16    0.000000           0    0.000000    0.000000     0.00000    0.000000
+OR4F29    0.000000           0    0.000000    0.000000     0.00000    0.000000
+OR4F5     0.000000           0    0.000000    0.000000     0.00000    0.000000
+SAMD11    0.000000           0    2.158024    2.488777     4.92229    3.585071
+```
+
+
+DESeq2 requiere conocer cuáles muestras son controles y cuáles son los casos
+
+- Añadimos información de nuestro experimento a.k.a. `metadata`
+
+
+```r
+samples &lt;- read.csv("/mnt/Timina/bioinfoII/rnaseq/data/metadata/samples.csv",stringsAsFactors = F, header = TRUE) # obtained parsing file on SRA Run Selector 
+samples &lt;- column_to_rownames(samples, var = "sample")
+samples
+```
+
+```
+            cell_line  genotype          org     type condition
+SRR12038081      M14s BRAFV600E Homo_sapiens Melanoma untreated
+SRR12038082      M14s BRAFV600E Homo_sapiens Melanoma untreated
+SRR12038083      M14s BRAFV600E Homo_sapiens Melanoma untreated
+SRR12038084      M14s BRAFV600E Homo_sapiens Melanoma Verafinib
+SRR12038085      M14s BRAFV600E Homo_sapiens Melanoma Verafinib
+SRR12038086      M14s BRAFV600E Homo_sapiens Melanoma Verafinib
+```
+
+Construir objeto `DESeqDataSet`, definir modelo de DE (especififcar controles y casos)
+
+- Datos introducidos como modelo estadístico (formula de diseño)
+
+
+```r
+library(DESeq2)
+
+dds &lt;- DESeqDataSetFromTximport(txi.kallisto,
+                                   colData = samples,
+                                   design = ~ condition) # + si hay vars en condiciones
+```
+```
+using counts and average transcript lengths from tximport
+Warning message:
+In DESeqDataSet(se, design = design, ignoreRank) :
+  some variables in design formula are characters, converting to factors
+```
+
+
+```r
+dds
+```
+```
+class: DESeqDataSet 
+dim: 6 6 
+metadata(1): version
+assays(2): counts avgTxLength
+rownames(6): KLHL17 NOC2L ... OR4F5 SAMD11
+rowData names(0):
+colnames(6): SRR12038081 SRR12038082 ... SRR12038085 SRR12038086
+colData names(5): cell_line genotype org type condition
+```
+
+Normalización y Expresión Diferencial con `DESeq2` :
+
+
+```r
+# Prefiltrado para quitar genes con cuentas bajas
+keep &lt;- rowSums(counts(dds)) &gt;= 6
+dds &lt;- dds[keep, ]
+
+dds$condition &lt;- factor(dds$condition, levels = c("untreated","Verafinib"))
+
+dds &lt;- DESeq(dds)
+```
+```
+estimating size factors
+using 'avgTxLength' from assays(dds), correcting for library size
+estimating dispersions
+gene-wise dispersion estimates
+mean-dispersion relationship
+final dispersion estimates
+fitting model and testing
+
+```
+
+```r
+res &lt;- results(dds)
+res
+```
+```
+log2 fold change (MLE): condition untreated vs Verafinib 
+Wald test p-value: condition untreated vs Verafinib 
+DataFrame with 6 rows and 6 columns
+        baseMean log2FoldChange     lfcSE      stat    pvalue      padj
+       &lt;numeric&gt;      &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;numeric&gt;
+KLHL17   6.54932      -0.434353  0.686012 -0.633157  0.526631  0.526631
+NOC2L  218.40214       0.621498  0.571255  1.087952  0.276616  0.414924
+OR4F16   0.00000             NA        NA        NA        NA        NA
+OR4F29   0.00000             NA        NA        NA        NA        NA
+OR4F5    0.00000             NA        NA        NA        NA        NA
+SAMD11   1.88592      -1.534003  1.351734 -1.134841  0.256442  0.414924
+```
+
+![](img/rna-icon.png)
+
+]
+
+---
+
+## Visualización de datos usando `PCA`
+
+.container[
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Slides_files/figure-html/unnamed-chunk-100-1.png)]
+
+_imagen tomada de (Villaseñor-Altamirano, 2021)_
+
+---
+
+# Visualización usando Volcano Plots
+
+![](https://comunidadbioinfo.github.io/minicurso_abr_2021/Slides/Images/Volcanoplot.png)
+
+---
+
+# Análisis Funcional
+
+Gene Ontology (GO term) Enrichment Analysis
+
+- `EnrichR`, `TopGO`, `Gprofiler`, `GORilla`
+- Databases
+- Ejemplo:
+
+.container[
+![](https://www.researchgate.net/profile/Esteban-Peguero-Sanchez/publication/286931153/figure/fig2/AS:307127257190401@1450236252755/GO-term-enrichment-analysis-for-the-top-IRES-predictions-The-GO-term-enrichment-analysis.png)]
+
+---
+
+# RNA-seq, ¿qué pensamos ahora?
+
+.scrollable[
+
+**Actividad:** Lluvia de ideas
+
+&lt;img style="border-radius: 90%; width: 150px; top: 1em; right: 1em; position:absolute;" src = "https://media.istockphoto.com/vectors/young-annoyed-female-character-sceptical-face-expression-vector-id1252249414?k=20&amp;m=1252249414&amp;s=612x612&amp;w=0&amp;h=l84MEu6X2KbrRnFbLS2KJ_dswLj0SPIp7pp__cXlRGM="&gt;
+
+- Llenen en la siguiente tabla palabras clave sobre RNA-seq: https://docs.google.com/document/d/1pAFddzDlLrRvHMSUjddh7EG3PdTbob3g9UQWzMHXR-w/edit?usp=sharing
+
+- Generemos una [figura de nuestras ideas](https://www.r-graph-gallery.com/wordcloud.html):
+
+
+
+
+
+```r
+library(wordcloud)
+library(RColorBrewer)
+
+words &lt;- c("Librería,","Secuenciación,","Transcripción,","samtools,","RNA,","","Regulación,","Nucleótido,","Traducción","RNA,","secuenciación,","proteínas,","regulación,","expresión","génica","Secuenciación,","expresión","diferencial,","transcriptoma,","fenotipos","exones","Transcriptoma,","expresión","diferencial,","RNA,","diferencia","celular","Transcripción,","regulación,","expresión,","muestra","Expresion,","exones,","transcriptoma,","UTR,","hisat2,","splicing,","Transcritoma,","splicing,","cDNA")
+
+wordcloud(words, colors = RColorBrewer::brewer.pal(5,name = "BuPu"))
+```
+
+]
+
+---
+
+# Gracias!
+
+![](https://media2.giphy.com/media/zOvBKUUEERdNm/giphy.gif?cid=790b7611f8295561c9b2cd4a38a728524c42a83c0e255086&amp;rid=giphy.gif&amp;ct=g)
 
 [kallisto]:https://pachterlab.github.io/kallisto/manual
     </textarea>
