@@ -90,3 +90,4 @@ Día |     Temas               | Link a presentación
 1   | Overview y Pre Análisis | https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#2
 2   | Alineamiento y Conteo crudo | https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#20
 3   | Integracion de datos, Normalización y Corrección por batch effect | https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#35
+4   | Normalización con DESeq 2, Intro a Análisis de Expresión Diferencial y Análisis Funcional | https://mpadilla905.github.io/clase_RNA-seq_LCGEJ2022/slides_RNA-seq.html#52

@@ -1,0 +1,23 @@
+---
+title: "Reporte de prácticas RNA-seq."
+date: ""
+author: "Monica Padilla"
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
+---
+
+\
+
+## **Análisis de datos de RNA-seq hasta Expresión Diferencial: SRP** {.tabset}
+
+Short intro or summary of this report
+
+
+```{r, include=FALSE}
+# Dont run code in this document
+knitr::opts_chunk$set(
+  eval = FALSE
+)
+```
